@@ -28,6 +28,7 @@
 #include "dnsserver.h"
 
 #include "pwm_alarm.h"
+#include "oled_config.h"
 
 #define TCP_PORT 80
 #define DEBUG_printf printf
@@ -42,7 +43,7 @@
 
 #define LED_PIN 13
 
-volatile bool is_alarm_on;
+volatile bool is_alarm_on = false;
 
 typedef struct TCP_SERVER_T_ {
     struct tcp_pcb *server_pcb;
@@ -103,7 +104,7 @@ static err_t tcp_server_sent(void *arg, struct tcp_pcb *pcb, u16_t len) {
 static int test_server_content(const char *request, const char *params, char *result, size_t max_result_len) {
     int len = 0;
     bool alarm;
-
+    char *msg;
     if (strncmp(request, LED_TEST, sizeof(LED_TEST) - 1) == 0) {
         // Get the state of the led
         bool value;
@@ -306,6 +307,8 @@ void core1_entry(){
 
     while(true) {
         is_alarm_on = multicore_fifo_pop_blocking();
+        display_message(is_alarm_on);
+        sleep_ms(50);
         if(is_alarm_on) {
             gpio_put(LED_PIN, 1);
             play_alarm(is_alarm_on);
@@ -320,7 +323,11 @@ void core1_entry(){
 int main() {
     stdio_init_all();
 
+    i2c_oled_init();
+
     multicore_launch_core1(core1_entry);
+
+    multicore_fifo_push_blocking(is_alarm_on);
 
     TCP_SERVER_T *state = calloc(1, sizeof(TCP_SERVER_T));
     if (!state) {

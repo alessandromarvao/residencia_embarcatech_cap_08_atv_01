@@ -40,6 +40,8 @@ add_executable(picow_access_point_background
         dhcpserver/dhcpserver.c
         dnsserver/dnsserver.c
         pwm_alarm.c
+        inc/ssd1306_i2c.c
+        oled_config.c
         )
 
 target_include_directories(picow_access_point_background PRIVATE
@@ -54,6 +56,7 @@ target_link_libraries(picow_access_point_background
         pico_stdlib
         pico_multicore
         hardware_pwm
+        hardware_i2c
         )
 # You can change the address below to change the address of the access point
 pico_configure_ip4_address(picow_access_point_background PRIVATE
@@ -66,6 +69,8 @@ add_executable(picow_access_point_poll
         dhcpserver/dhcpserver.c
         dnsserver/dnsserver.c
         pwm_alarm.c
+        inc/ssd1306_i2c.c
+        oled_config.c
         )
 target_include_directories(picow_access_point_poll PRIVATE
         ${CMAKE_CURRENT_LIST_DIR}
@@ -78,6 +83,7 @@ target_link_libraries(picow_access_point_poll
         pico_stdlib
         pico_multicore
         hardware_pwm
+        hardware_i2c
         )
 # You can change the address below to change the address of the access point
 pico_configure_ip4_address(picow_access_point_poll PRIVATE
